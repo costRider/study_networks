@@ -304,6 +304,38 @@ $( [ $(echo "$pingStatus" | awk '{print int($NF)}') -ge 100 ] && echo '(Slow)' )
 * cut, sort 명령어 활용  
 * 숫자 비교를 위한 조건문 사용
 
+```shell
+vi traffic_monitor.sh
+
+#!/bin/bash
+
+#####################################################################
+#
+# [ Script Information ]
+# Filename    : traffic_monitor.sh
+# Description : Monitoring Network Traffic Thresholds
+# Usage       : ./traffic_monitor.sh
+# Example     : ./traffic_monitor.sh
+#
+# [ Author Information ]
+# Author      : Mklee
+# Created On  : 2025-07-24
+# Last Update : 2025-07-25
+# Version     : 1.0
+#
+# [ Notes ]
+# - IPs with more than 10 connections are classified as "high", 5-9 as "moderate", and 4 or less as "low"
+#	Count and output for each classification
+#	List only IPs in the "high" category separately
+#
+#
+#####################################################################
+
+# need loop --- 
+
+```
+
+
 ---
 
 ## **문제 5: 현재 시스템 네트워크 정보 수집기**
@@ -331,6 +363,47 @@ $( [ $(echo "$pingStatus" | awk '{print int($NF)}') -ge 100 ] && echo '(Slow)' )
 * if문과 변수만 사용  
 * ip, hostname, ping, grep, wc 명령어 활용  
 * 각 정보를 변수에 저장 후 출력
+
+```shell
+
+vi network_info.sh
+
+#!/bin/bash
+
+#####################################################################
+#
+# [ Script Information ]
+# Filename    : network_info.sh
+# Description : Current System Network Information Collector
+# Usage       : ./network_info.sh
+# Example     : ./network_info.sh
+#
+# [ Author Information ]
+# Author      : Mklee
+# Created On  : 2025-07-24
+# Last Update : 2025-07-25
+# Version     : 1.0
+#
+# [ Notes ]
+# - Output the IP address, default gateway, and number of active interfaces of the current system
+#	Check Internet connection status (ping test to 8.8.8.8) Outputs all information in a good way
+#
+#
+#####################################################################
+
+ip_addr=$(ifconfig | grep inet | grep boardcast | tr -s " " | cut -d " " -f3)
+default_gw=$(ip route | grep default | cut -d " " -f3)
+activeInterface=$(ip -br addr | grep -i up | wc -l)
+
+echo "===System Network Info==="
+echo "Private IP: $ip_addr"
+echo "Default G/W: $default_gw"
+echo "Activate Interface: $activeInterface ea"
+
+[ "$(ping -c 1 8.8.8.8 | grep received | awk -F "," '{print int($2)}')" -eq 1 ] && echo "Network: Connected" || echo "Network: Disconnected"
+
+```
+
 
 ---
 
