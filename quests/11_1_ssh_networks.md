@@ -73,36 +73,52 @@ EOF
 * 파일명은 스크립트 실행 시 첫 번째 인자로 받기
 
 ```shell
+
+vi network_analyze.sh
+
 #!/bin/bash
 
-####################################
-#
-#       2025.07.25
-#       mklee
-#       study practice
-#
-#
-#
-####################################
 
-#var List
-allConn=$(cat network.log | wc -l)
+#####################################################################
+#
+# [ Script Information ]
+# Filename    : network_analyze.sh
+# Description : Top list of connections by IP address
+# Usage       : ./network_analyze.sh
+# Example     : ./network_analyze.sh
+#
+# [ Author Information ]
+# Author      : Mklee
+# Created On  : 2025-07-24
+# Last Update : 2025-07-25
+# Version     : 1.0
+#
+# [ Notes ]
+# - Output total number of connection attempts, successes, and failures
+#       Display success rate as a percentage
+#
+#
+#####################################################################
+
+#Variable declaration
+attemConn=$(grep . network.log | grep -v DIS  | wc -l)
 success=$(grep success network.log | grep -v DIS | wc -l)
 failed=$(grep failed network.log | wc -l)
-perCen=$((success * 100 / allConn ))
+rate=$((success * 100 / attemConn))
 
-echo "== Network Analys=="
+echo "== Network Analyze=="
 #전체 연결 시도: X건
-echo "Try connection: $allConn"
+echo "Attempted connection: $attemConn"
 
 #성공: Y건
-echo "Success: $success"
+echo "Successful: $success"
 
 #실패: Z건
 echo "Failed: $failed"
 
 #성공률: W%
-echo "Success percent: $perCen %"
+echo "Success rate: $rate %"
+
 ```
 
 
@@ -133,33 +149,48 @@ echo "Success percent: $perCen %"
 * head나 tail로 결과 제한
 
 ```shell
+vi ip_conn_top_list.sh
+
 #!/bin/bash
 
-#########################
+#####################################################################
 #
-#       2025.07.25
-#       mklee
-#       study practice
+# [ Script Information ]
+# Filename    : ip_conn_top_list.sh
+# Description : Network Connection Status Analyzer
+# Usage       : ./ip_conn_top_list.sh
+# Example     : ./ip_conn_top_list.sh
+#
+# [ Author Information ]
+# Author      : Mklee
+# Created On  : 2025-07-24
+# Last Update : 2025-07-25
+# Version     : 1.0
+#
+# [ Notes ]
+# - Calculate the number of connections by IP address
+#	Only top 3 outputs in descending order based on number of connections
+#	Displays the first connection time of each IP as well
 #
 #
-#########################
+#####################################################################
 
-list=$(cat network.log | cut -d " " -f3 | sort)
+list=$(grep . network.log | cut -d " " -f3 | sort)
 
-top1=$(cat network.log | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==1")
+top1=$(grep . network.log | grep -v DIS | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==1")
 top1Ip=$(echo $top1 | cut -d " " -f2)
 top1Count=$(echo $top1 | cut -d " " -f1)
-top1Conn=$(cat network.log | grep $top1Ip | cut -d " " -f2 | sort -n | head -n 1)
+top1Conn=$(grep . network.log | grep $top1Ip | cut -d " " -f2 | sort -n | head -n 1)
 
-top2=$(cat network.log | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==2")
+top2=$(grep . network.log | grep -v DIS | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==2")
 top2Ip=$(echo $top2 | cut -d " " -f2)
 top2Count=$(echo $top2 | cut -d " " -f1)
-top2Conn=$(cat network.log | grep $top2Ip | cut -d " " -f2 | sort -n | head -n 1)
+top2Conn=$(grep . network.log | grep $top2Ip | cut -d " " -f2 | sort -n | head -n 1)
 
-top3=$(cat network.log | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==3")
+top3=$(grep . network.log | grep -v DIS | cut -d " " -f3 | sort | uniq -c | sort -nr | head -n 3 | awk "NR==3")
 top3Ip=$(echo $top3 | cut -d " " -f2)
 top3Count=$(echo $top3 | cut -d " " -f1)
-top3Conn=$(cat network.log | grep $top3Ip | cut -d " " -f2 | sort -n | head -n 1)
+top3Conn=$(grep . network.log | grep $top3Ip | cut -d " " -f2 | sort -n | head -n 1)
 
 #1위: 192.168.1.XXX (X회) \- 첫 접속: 10:XX:XX
 echo "1st: $top1Ip (Count: $top1Count) - First Connection : $top1Conn"
@@ -202,6 +233,44 @@ OR
 * if문과 변수만 사용  
 * cut, ping 명령어 활용  
 * ping은 1회만 실행 (`ping -c 1`)
+
+
+```shell
+
+vi server_health_check.sh
+
+#!/bin/bash
+
+#####################################################################
+#
+# [ Script Information ]
+# Filename    : server_health_check.sh
+# Description : Checks server status using a given IP address
+# Usage       : ./server_health_check.sh {ip_addr}
+# Example     : ./server_health_check.sh 192.168.0.10
+#
+# [ Author Information ]
+# Author      : Mklee
+# Created On  : 2025-07-24
+# Last Update : 2025-07-25
+# Version     : 1.0
+#
+# [ Notes ]
+# - Running a ping test for each server
+#	Outputs servers with and without responses
+#	Servers with response times greater than 100 ms display "slow"
+#
+#
+#####################################################################
+
+pingStatus=$(ping -c 1 $1 | grep received)
+
+echo "$pingStatus" | grep -q "error" && 
+  echo -e "===Server Health Check===\necho "[OFFLINE] $1 - No Response" || 
+  echo -e "===Server Health Check===\necho "[ONLINE] $1 - Response: $(echo "$pingStatus" | awk '{print $NF}') 
+$( [ $(echo "$pingStatus" | awk '{print int($NF)}') -ge 100 ] && echo '(Slow)' )"
+
+```
 
 ---
 
