@@ -72,6 +72,9 @@ EOF
 * grep, wc, cut 명령어 활용  
 * 파일명은 스크립트 실행 시 첫 번째 인자로 받기
 
+
+### 작성 
+
 ```shell
 
 vi network_analyze.sh
@@ -121,6 +124,17 @@ echo "Success rate: $rate %"
 
 ```
 
+### 결과
+```shell
+
+== Network Analyze==
+Attempted connection: 6
+Successful: 4
+Failed: 2
+Success rate: 66 %
+
+
+```
 
 ---
 
@@ -147,6 +161,8 @@ echo "Success rate: $rate %"
 * if문과 변수만 사용  
 * cut, sort, uniq, grep 명령어 활용  
 * head나 tail로 결과 제한
+
+### 작성
 
 ```shell
 vi ip_conn_top_list.sh
@@ -200,6 +216,15 @@ echo "2nd: $top2Ip (Count: $top2Count) - First Connection : $top2Conn"
 echo "3rd: $top3Ip (Count: $top3Count) - First Connection : $top3Conn"
 
 ```
+
+### 결과
+```shell
+1st: 192.168.1.101 (Count: 2) - First Connection : 10:30:30
+2nd: 192.168.1.104 (Count: 1) - First Connection : 10:33:25
+3rd: 192.168.1.103 (Count: 1) - First Connection : 10:32:10
+
+```
+
 ---
 
 ## **문제 3: 서버 상태 점검 스크립트**
@@ -272,6 +297,19 @@ $( [ $(echo "$pingStatus" | awk '{print int($NF)}') -ge 100 ] && echo '(Slow)' )
 
 ```
 
+### 결과
+```shell
+
+=== Server Health Check ===
+[ONLINE] 192.168.0.8 - Response: 0ms
+
+
+=== Server Health Check ===
+[OFFLINE] 192.168.0.9 - No Response
+
+
+```
+
 ---
 
 ## **문제 4: 네트워크 트래픽 임계값 모니터링**
@@ -335,6 +373,12 @@ vi traffic_monitor.sh
 
 ```
 
+### 결과
+```shell
+
+
+
+```
 
 ---
 
@@ -404,6 +448,17 @@ echo "Activate Interface: $activeInterface ea"
 
 ```
 
+### 결과
+```shell
+
+===System Network Info===
+Private IP: 192.168.0.11
+Default G/W: 192.168.0.1
+Activate Interface: 1 ea
+Network: Connected
+
+
+```
 
 ---
 
