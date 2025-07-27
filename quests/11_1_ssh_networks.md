@@ -370,13 +370,58 @@ vi traffic_monitor.sh
 #####################################################################
 
 # need loop --- 
+#배열 선언
+arrList=()
+
+#추가 공백, escape 문자열 제외하여 한줄씩 읽어 배열에 저장
+while IFS= read -r line; do
+  arrList+=("$line")
+done < <(grep . connections.txt | sort -k2 -nr)
+
+x=0
+y=0
+z=0
+warList=()
+
+#저장한 배열에서 한줄씩 꺼내와 횟수 비교(10회 이상이면 warning 배열에 추가)
+for arr in "${arrList[@]}"
+do
+        value=$(echo "$arr" | awk '{print int($2)}' )
+        if [ $value -ge 10 ]; then
+                ((x++))
+                warList+=("$arr")
+        elif [ $value  -le 4 ]; then
+                ((z++))
+        else
+                ((y++))
+        fi
+
+done
+#출력
+echo "==Traffic Counter=="
+echo "High: $x"
+echo "Mederate: $y"
+echo "Low: $z"
+echo "[ Warning ]"
+#warning 배열 출력
+for war in "${warList[@]}"
+do
+        echo "$war times"
+done
+
 
 ```
 
 ### 결과
 ```shell
 
-
+==Traffic Counter==
+High: 2
+Mederate: 3
+Low: 1
+[ Warning ]
+192.168.1.104 15 times
+192.168.1.101 12 times
 
 ```
 
