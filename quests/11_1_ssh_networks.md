@@ -373,7 +373,9 @@ vi traffic_monitor.sh
 #배열 선언
 arrList=()
 
-#추가 공백, escape 문자열 제외하여 한줄씩 읽어 배열에 저장
+#IFS= read 에 대한 설정(공백이나 구분자 무시하고 한줄을 그대로 읽기)
+# -r escape 문자열 무시(\)
+# <(grep . connections.txt | sort -k2 -nr) file 형태로 전달
 while IFS= read -r line; do
   arrList+=("$line")
 done < <(grep . connections.txt | sort -k2 -nr)
