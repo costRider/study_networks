@@ -39,14 +39,33 @@ $ ./check\_ports.sh 80 443 22 3000 8080
 ---
 ```shell
 
-#포트뽑기
 #!/bin/bash
 
-#
 
-lsof -i 
-return 이 있으면 사용중
-아니면 사용 안함
+echo "포트 사용 상태 확인 중..."
+
+#사용 횟수 count
+used=0
+#입력한 매개변수 전체를 저장
+input=("$@")
+
+#매개변수의 전체를 돌아가며 확인
+for port in "${input[@]}"
+do
+  #포트 사용 여부 확인 grep -q 의ture false return을 통해 if 조건절 따져 check 
+  if ss -tulnp | grep -q ":$port "; then
+    echo "포트 $port: ✓ 사용 중"
+    ((used++))
+  else
+    echo "포트 $port: ✗ 사용 안함"
+  fi
+done
+
+#총 갯수 출력 
+echo "총  ${#input[@]} 개 포트 중 $used 개가 사용 중입니다."
+
+
+
 
 ```
 
@@ -91,6 +110,48 @@ $ ./kill\_port.sh 9999
 포트 9999를 사용하는 프로세스가 없습니다.
 
 ```shell
+
+#!/bin/bash
+
+#사용자 입력값 저장
+port=$1
+
+echo "포트 $port 사용 프로세스 검색 중..."
+
+# 배열 선언해 해당 port 사용중인 프로세스를 appent 함
+processList=()
+while IFS= read -r line; do
+  processList+=("$line")
+  #port(사용자입력)으로 프로세스를 검색
+done < <(lsof -i :$port | grep -v "COMMAND")
+
+# append한 배열의 length가 없으면 프로세스가 없음
+if [ ${#processList[@]} -eq 0 ]; then
+  echo "포트 $port를 사용하는 프로세스가 없습니다."
+  exit 0
+fi
+
+# 값이 있으면 내용을 잘라서 출력
+echo "발견된 프로세스:"
+for entry in "${processList[@]}"
+do
+  pid=$(echo "$entry" | tr -s ' ' | cut -d ' ' -f2)
+  command=$(echo "$entry" | tr -s ' ' | cut -d ' ' -f1)
+  echo "PID: $pid, 프로세스명: $command"
+done
+
+#이후 해당 프로세스를 kill
+echo "프로세스 종료 중..."
+for entry in "${processList[@]}"
+do
+  pid=$(echo "$entry" | tr -s ' ' | cut -d ' ' -f2)
+  kill -9 "$pid"
+  echo "PID: $pid 종료 완료"
+done
+
+
+echo "포트 $port이 해제되었습니다."
+
 
 ```
 
