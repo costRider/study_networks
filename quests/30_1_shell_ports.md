@@ -194,6 +194,9 @@ localhost:22       ✗ HTTP 서비스 아님
 모니터링 완료: 2024-07-28 14:30:15
 
 ```shell
+#curl -I --connect-timeout 5 http://IP:포트 체크
+#
+
 
 ```
 
